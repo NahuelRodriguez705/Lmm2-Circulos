@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Círculos Negros con Efecto de Carga y Botón de Reinicio</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: white;
+            overflow: hidden;
+            position: relative;
+        }
+        .container {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+        }
+        .circle {
+            background-color: black;
+            border-radius: 50%;
+            position: absolute;
+            opacity: 0; /* Inicialmente invisible */
+            transition: opacity 0.3s ease-in-out; /* Transición de opacidad */
+        }
+        .rotate {
+            animation: spin 3s linear infinite;
+        }
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        #resetButton {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: gray;
+            color: white;
+            border: none;
+            cursor: pointer;
+            outline: none;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="spinner-container"></div>
+
+    <button id="resetButton" class="hidden">Reiniciar</button>
+
+    <script>
+        const radius = 100; // Radio de la circunferencia
+        let clickCount = 0;
+        const totalCircles = 7;
+        const container = document.getElementById('spinner-container');
+        const resetButton = document.getElementById('resetButton');
+
+        // Tamaños diferentes para los círculos
+        const circleSizes = [30, 35, 40, 45, 50, 55, 60]; // De menor a mayor tamaño
+
+        document.body.addEventListener('click', () => {
+            clickCount++;
+
+            if (clickCount <= totalCircles) {
+                const size = circleSizes[clickCount - 1];
+                const angle = (clickCount - 1) * (360 / totalCircles);
+                const radian = angle * (Math.PI / 180);
+                const x = Math.cos(radian) * radius;
+                const y = Math.sin(radian) * radius;
+
+                const newCircle = document.createElement('div');
+                newCircle.classList.add('circle');
+                newCircle.style.width = `${size}px`; // Agrega las comillas y `${}` para interpolación
+                newCircle.style.height = `${size}px`; // Agrega las comillas y `${}` para interpolación
+                newCircle.style.left = `${100 + x - size / 2}px`; // Agrega las comillas y `${}` para interpolación
+                newCircle.style.top = `${100 + y - size / 2}px`;  // Agrega las comillas y `${}` para interpolación
+
+                // Agregar con transición
+                setTimeout(() => {
+                    newCircle.style.opacity = '1';
+                }, 100 * clickCount); // Efecto de carga progresivo
+
+                container.appendChild(newCircle);
+            }
+
+            if (clickCount === totalCircles + 1) {
+                setTimeout(() => {
+                    container.classList.add('rotate'); // Iniciar animación de rotación después del 8vo clic
+                    resetButton.classList.remove('hidden'); // Mostrar botón de reinicio
+                }, 100); // Pequeño retraso para que se vea la última animación de carga
+            }
+        });
+
+        resetButton.addEventListener('click', () => {
+            clickCount = 0;
+            container.innerHTML = ''; // Limpiar todos los círculos
+            container.classList.remove('rotate'); // Detener animación de rotación
+            resetButton.classList.add('hidden'); // Ocultar botón de reinicio
+        });
+    </script>
+</body>
+</html>
